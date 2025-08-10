@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================
+// Organization Model (Multi-tenant support)
+// =====================================================
+
+model Organization {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  slug      String   @unique
+  domain    String?
+  plan      String   @default("starter") // starter, professional, enterprise
+  status    String   @default("trial") // trial, active, suspended, cancelled
+  settings  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  trialEndsAt DateTime?
+
+  // Relations
+  users     User[]
+  contacts  Contact[]
+  deals     Deal[]
+  activities Activity[]
+
+  @@map("organizations")
+}
+
+// =====================================================
+// User Model
+// =====================================================
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  email          String    @unique
+  passwordHash   String?
+  firstName      String
+  lastName       String
+  avatar         String?
+  role           String    @default("sales_rep") // admin, manager, sales_rep, viewer
+  status         String    @default("active") // active, inactive, pending
+  organizationId String    @db.ObjectId
+  googleId       String?   @unique
+  refreshToken   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastLoginAt    DateTime?
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedContacts Contact[] @relation("AssignedToUser")
+  assignedDeals    Deal[]    @relation("AssignedToUser")
+  activities       Activity[]
+
+  @@map("users")
+}
+
+// =====================================================
+// Contact Model
+// =====================================================
+
+model Contact {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  email            String
+  firstName        String
+  lastName         String
+  phone            String?
+  avatar           String?
+  type             String    @default("lead") // lead, customer, prospect
+  source           String    @default("website") // website, referral, social_media, email, phone, event, other
+  title            String?
+  company          String?
+  website          String?
+  address          String?
+  city             String?
+  state            String?
+  country          String?
+  zipCode          String?
+  tags             String[]  @default([])
+  notes            String?
+  customFields     Json?
+  organizationId   String    @db.ObjectId
+  assignedToId     String?   @db.ObjectId
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  lastContactedAt  DateTime?
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedTo   User?        @relation("AssignedToUser", fields: [assignedToId], references: [id], onDelete: SetNull)
+  deals        Deal[]
+  activities   Activity[]
+
+  @@unique([email, organizationId])
+  @@map("contacts")
+}
+
+// =====================================================
+// Deal Model
+// =====================================================
+
+model Deal {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  description       String?
+  value             Float     @default(0)
+  currency          String    @default("USD")
+  stage             String    @default("lead") // lead, qualified, proposal, negotiation, closed_won, closed_lost
+  priority          String    @default("medium") // low, medium, high, urgent
+  probability       Int       @default(0) // 0-100
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  contactId         String    @db.ObjectId
+  assignedToId      String    @db.ObjectId
+  organizationId    String    @db.ObjectId
+  tags              String[]  @default([])
+  customFields      Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contact      Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  assignedTo   User         @relation("AssignedToUser", fields: [assignedToId], references: [id], onDelete: Restrict)
+  activities   Activity[]
+
+  @@map("deals")
+}
+
+// =====================================================
+// Activity Model
+// =====================================================
+
+model Activity {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  type           String    // call, email, meeting, note, task, deal_created, deal_updated, contact_created, contact_updated
+  title          String
+  description    String?
+  completed      Boolean   @default(false)
+  dueDate        DateTime?
+  completedAt    DateTime?
+  contactId      String?   @db.ObjectId
+  dealId         String?   @db.ObjectId
+  userId         String    @db.ObjectId
+  organizationId String    @db.ObjectId
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contact      Contact?     @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  deal         Deal?        @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+// =====================================================
+// Session Model (for caching functionality in MongoDB)
+// =====================================================
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId String   @unique
+  userId    String   @db.ObjectId
+  data      Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+// =====================================================
+// Audit Log Model
+// =====================================================
+
+model AuditLog {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  action         String   // create, update, delete
+  entityType     String   // user, contact, deal, activity
+  entityId       String
+  userId         String   @db.ObjectId
+  organizationId String   @db.ObjectId
+  oldValues      Json?
+  newValues      Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  @@map("audit_logs")
+}

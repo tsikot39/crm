@@ -1,0 +1,146 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    # Load test phases
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 180
+      arrivalRate: 20
+      name: "Normal load"
+    - duration: 120
+      arrivalRate: 50
+      name: "High load"
+    - duration: 60
+      arrivalRate: 100
+      name: "Peak load"
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool down"
+
+  # Performance expectations
+  ensure:
+    p95: 500 # 95th percentile response time under 500ms
+    p99: 1000 # 99th percentile response time under 1000ms
+    maxErrors: 5% # Error rate under 5%
+
+scenarios:
+  # Authentication flow testing
+  - name: "Authentication Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "password123"
+          capture:
+            - json: "$.data.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "data.token"
+
+      - get:
+          url: "/api/auth/verify"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # Dashboard data loading
+  - name: "Dashboard Load"
+    weight: 25
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "password123"
+          capture:
+            - json: "$.data.token"
+              as: "authToken"
+
+      - get:
+          url: "/api/dashboard"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.stats"
+
+  # Contacts CRUD operations
+  - name: "Contacts Operations"
+    weight: 25
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "password123"
+          capture:
+            - json: "$.data.token"
+              as: "authToken"
+
+      # List contacts
+      - get:
+          url: "/api/contacts?page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.contacts"
+
+      # Search contacts
+      - get:
+          url: "/api/contacts?search=test&page=1&limit=5"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+      # Create new contact (simulated)
+      - post:
+          url: "/api/contacts"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            name: "Test Contact {{ $randomString() }}"
+            email: "test-{{ $randomString() }}@example.com"
+            phone: "+1234567890"
+            company: "Test Company"
+          expect:
+            - statusCode: [200, 201]
+
+  # Deals management
+  - name: "Deals Operations"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "password123"
+          capture:
+            - json: "$.data.token"
+              as: "authToken"
+
+      # List deals
+      - get:
+          url: "/api/deals?page=1&limit=10"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.deals"
+
+  # Health and system endpoints
+  - name: "System Health"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: "status"

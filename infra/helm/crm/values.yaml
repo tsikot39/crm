@@ -1,0 +1,158 @@
+# Default values for CRM SaaS application
+replicaCount:
+  frontend: 2
+  apiGateway: 2
+  authService: 2
+  contactsService: 2
+
+image:
+  registry: ghcr.io
+  repository: your-username/crm
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  frontend:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  apiGateway:
+    type: ClusterIP
+    port: 3001
+    targetPort: 3001
+  authService:
+    type: ClusterIP
+    port: 3002
+    targetPort: 3002
+  contactsService:
+    type: ClusterIP
+    port: 3003
+    targetPort: 3003
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: app.crm-saas.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+    - host: api.crm-saas.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: apiGateway
+  tls:
+    - secretName: crm-saas-tls
+      hosts:
+        - app.crm-saas.com
+        - api.crm-saas.com
+
+resources:
+  frontend:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  apiGateway:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  authService:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  contactsService:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Environment Configuration
+env:
+  NODE_ENV: production
+  JWT_SECRET: "change-me-in-production"
+  RESEND_API_KEY: ""
+  GOOGLE_OAUTH_CLIENT_ID: ""
+  GOOGLE_OAUTH_CLIENT_SECRET: ""
+
+# Database Configuration
+mongodb:
+  enabled: true
+  auth:
+    rootUser: admin
+    rootPassword: password
+    database: crm-saas
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: "fast-ssd"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# Monitoring and Observability
+monitoring:
+  enabled: false
+  prometheus:
+    enabled: false
+  grafana:
+    enabled: false
+
+# Backup Configuration
+backup:
+  enabled: false
+  schedule: "0 2 * * *"
+  retention: "7d"

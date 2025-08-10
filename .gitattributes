@@ -1,0 +1,5 @@
+# Add performance testing scripts to .gitattributes
+performance/run-performance-tests.sh text eol=lf
+performance/run-performance-tests.bat text eol=crlf
+performance/k6-scripts/*.js text eol=lf
+performance/artillery/*.yml text eol=lf

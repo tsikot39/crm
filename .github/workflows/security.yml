@@ -1,0 +1,87 @@
+name: Security & Dependency Audit
+
+on:
+  schedule:
+    # Run every day at 2 AM UTC
+    - cron: "0 2 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 npm audit
+        run: |
+          echo "🔍 Running npm audit..."
+          npm audit --audit-level moderate --json > npm-audit.json || true
+
+          # Check if there are high or critical vulnerabilities
+          if npm audit --audit-level high; then
+            echo "✅ No high or critical vulnerabilities found"
+          else
+            echo "❌ High or critical vulnerabilities found"
+            exit 1
+          fi
+
+      - name: 🛡️ CodeQL Analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+
+      - name: 🛡️ Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+      - name: 🔒 License compliance check
+        run: |
+          echo "🔒 Checking license compliance..."
+          npx license-checker --summary
+
+  dependency-update:
+    name: Dependency Update Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: 🔄 Check for outdated packages
+        run: |
+          echo "🔄 Checking for outdated packages..."
+          npm outdated || true
+
+      - name: 📊 Generate dependency report
+        run: |
+          echo "📊 Generating dependency report..."
+          npm ls --all > dependency-tree.txt || true
+
+      - name: 📤 Upload dependency report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-report
+          path: dependency-tree.txt

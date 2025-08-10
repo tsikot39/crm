@@ -1,0 +1,4 @@
+# Performance Testing Reports
+performance/reports/
+*.html
+*.json

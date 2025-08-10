@@ -1,0 +1,114 @@
+version: "3.8"
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: crm-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: crm-saas
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - crm-network
+
+  # Elasticsearch (for search and analytics)
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    container_name: crm-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - crm-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: crm-api-gateway
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://admin:password@mongodb:27017/crm-saas?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - crm-network
+
+  # Authentication Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: crm-auth-service
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://admin:password@mongodb:27017/crm-saas?authSource=admin
+      - JWT_SECRET=your-jwt-secret
+    depends_on:
+      - mongodb
+    networks:
+      - crm-network
+
+  # Contacts Service
+  contacts-service:
+    build:
+      context: .
+      dockerfile: services/contacts-service/Dockerfile
+    container_name: crm-contacts-service
+    restart: unless-stopped
+    ports:
+      - "4002:4002"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://admin:password@mongodb:27017/crm-saas?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - crm-network
+
+  # Frontend Development Server
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile.dev
+    container_name: crm-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:4000/api
+      - VITE_WS_URL=http://localhost:4000
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    networks:
+      - crm-network
+
+volumes:
+  mongodb_data:
+  elasticsearch_data:
+
+networks:
+  crm-network:
+    driver: bridge

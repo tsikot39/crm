@@ -1,0 +1,69 @@
+config:
+  target: "http://localhost:3000" # Frontend dev server
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Frontend warm up"
+    - duration: 120
+      arrivalRate: 15
+      name: "Normal frontend load"
+    - duration: 60
+      arrivalRate: 30
+      name: "High frontend load"
+
+  # Performance expectations for frontend
+  ensure:
+    p95: 2000 # Frontend can be slower due to rendering
+    p99: 5000
+    maxErrors: 2%
+
+scenarios:
+  # Landing page performance
+  - name: "Landing Page Load"
+    weight: 40
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - contentType: html
+
+  # Authentication pages
+  - name: "Auth Pages"
+    weight: 30
+    flow:
+      - get:
+          url: "/login"
+          expect:
+            - statusCode: 200
+
+      - get:
+          url: "/register"
+          expect:
+            - statusCode: 200
+
+  # Static assets performance
+  - name: "Static Assets"
+    weight: 20
+    flow:
+      # Test CSS loading
+      - get:
+          url: "/assets/index.css"
+          expect:
+            - statusCode: [200, 404] # May not exist in dev mode
+
+      # Test JS bundle loading
+      - get:
+          url: "/assets/index.js"
+          expect:
+            - statusCode: [200, 404] # May not exist in dev mode
+
+  # API calls from frontend
+  - name: "Frontend API Calls"
+    weight: 10
+    flow:
+      # Simulate frontend making API calls
+      - get:
+          url: "/api/health" # Proxied through Vite dev server
+          expect:
+            - statusCode: [200, 404] # May not be proxied in test
