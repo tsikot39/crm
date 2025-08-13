@@ -3,9 +3,7 @@ runtime: nodejs18
 build:
   commands:
     build:
-      - cd /codebuild/output/src*/services/api-gateway
-      - rm -f package-lock.json
-      - npm install --legacy-peer-deps
+      - npm install --legacy-peer-deps --omit=dev
       - npm run build
 run:
   command: node dist/index.js
