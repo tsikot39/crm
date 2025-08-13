@@ -9,6 +9,7 @@
 ## 🎯 Why AWS App Runner?
 
 **Perfect for your CRM app because:**
+
 - ✅ **No container orchestration complexity** (no ECS/Fargate)
 - ✅ **Automatic scaling** and load balancing
 - ✅ **Built-in CI/CD** from GitHub
@@ -39,6 +40,7 @@ Auto Deploy    Auto Scale           Custom Domain
 ```
 
 **Services to deploy:**
+
 - **Frontend Service** (React app)
 - **API Gateway Service** (Node.js)
 - **Auth Service** (Node.js) - Optional
@@ -51,6 +53,7 @@ Auto Deploy    Auto Scale           Custom Domain
 ### 1.1 Create Dockerfiles (if not exists)
 
 #### Frontend Dockerfile
+
 ```dockerfile
 # apps/frontend/Dockerfile
 FROM node:18-alpine AS builder
@@ -68,6 +71,7 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 
 #### API Gateway Dockerfile
+
 ```dockerfile
 # services/api-gateway/Dockerfile
 FROM node:18-alpine
@@ -89,18 +93,19 @@ CMD ["node", "mock-server.js"]
 ```
 
 ### 1.2 Create nginx.conf for Frontend
+
 ```nginx
 # apps/frontend/nginx.conf
 server {
     listen 80;
     server_name localhost;
-    
+
     location / {
         root /usr/share/nginx/html;
         index index.html index.htm;
         try_files $uri $uri/ /index.html;
     }
-    
+
     # Enable gzip compression
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
@@ -108,11 +113,13 @@ server {
 ```
 
 ### 1.3 Update Environment Variables
+
 ```javascript
 // apps/frontend/src/config/api.ts
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-api-service.us-east-1.awsapprunner.com'
-  : 'http://localhost:3001';
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://your-api-service.us-east-1.awsapprunner.com"
+    : "http://localhost:3001";
 
 export { API_BASE_URL };
 ```
@@ -124,17 +131,20 @@ export { API_BASE_URL };
 ### 2.1 Create App Runner Service via AWS Console
 
 1. **Go to AWS App Runner Console**
+
    ```
    https://console.aws.amazon.com/apprunner/
    ```
 
 2. **Create Service**
+
    - Click "Create service"
    - Source: "Source code repository"
    - Repository provider: "GitHub"
    - Connect to GitHub and select your repo
 
 3. **Configure Source and Deployment**
+
    ```yaml
    Repository URL: https://github.com/yourusername/crm
    Branch: main
@@ -147,6 +157,7 @@ export { API_BASE_URL };
    ```
 
 ### 2.2 Create apprunner.yaml
+
 ```yaml
 # services/api-gateway/apprunner.yaml
 version: 1.0
@@ -175,6 +186,7 @@ run:
 ```
 
 ### 2.3 Complete Service Configuration
+
 ```yaml
 Service name: crm-api-gateway
 CPU: 0.25 vCPU
@@ -190,6 +202,7 @@ Health check path: /api/health
 ### 3.1 Create Frontend App Runner Service
 
 1. **Create Another Service**
+
    ```yaml
    Repository: Same GitHub repo
    Source directory: apps/frontend
@@ -197,6 +210,7 @@ Health check path: /api/health
    ```
 
 2. **Frontend apprunner.yaml**
+
 ```yaml
 # apps/frontend/apprunner.yaml
 version: 1.0
@@ -225,6 +239,7 @@ run:
 ### 4.1 Set Environment Variables in App Runner Console
 
 **For API Gateway Service:**
+
 ```bash
 NODE_ENV=production
 PORT=3001
@@ -234,6 +249,7 @@ CORS_ORIGIN=https://your-frontend.us-east-1.awsapprunner.com
 ```
 
 **For Frontend Service:**
+
 ```bash
 NODE_ENV=production
 VITE_API_URL=https://crm-api-gateway-xxxxxxxxx.us-east-1.awsapprunner.com
@@ -244,6 +260,7 @@ VITE_API_URL=https://crm-api-gateway-xxxxxxxxx.us-east-1.awsapprunner.com
 ## 🌐 Step 5: Custom Domain (Optional)
 
 ### 5.1 Configure Custom Domain
+
 ```bash
 # In App Runner console, go to your service
 # Custom domains → Associate domain
@@ -252,6 +269,7 @@ Domain: app.yourcrm.com (for frontend service)
 ```
 
 ### 5.2 Update Route 53 DNS
+
 ```bash
 # Create CNAME records in Route 53
 api.yourcrm.com → crm-api-gateway-xxxxxxxxx.us-east-1.awsapprunner.com
@@ -265,6 +283,7 @@ app.yourcrm.com → crm-frontend-xxxxxxxxx.us-east-1.awsapprunner.com
 ### 6.1 Health Check Endpoints
 
 **API Gateway Health Check:**
+
 ```javascript
 // services/api-gateway/mock-server.js
 // Add this endpoint if not exists
@@ -273,20 +292,21 @@ if (pathname === "/api/health" && req.method === "GET") {
     status: "healthy",
     message: "CRM API Gateway is running",
     timestamp: new Date().toISOString(),
-    version: "1.0.0"
+    version: "1.0.0",
   });
   return;
 }
 ```
 
 ### 6.2 Configure Health Check in App Runner
+
 ```yaml
 Health check configuration:
-- Health check path: /api/health
-- Health check interval: 30 seconds
-- Health check timeout: 5 seconds
-- Healthy threshold: 3
-- Unhealthy threshold: 3
+  - Health check path: /api/health
+  - Health check interval: 30 seconds
+  - Health check timeout: 5 seconds
+  - Healthy threshold: 3
+  - Unhealthy threshold: 3
 ```
 
 ---
@@ -296,18 +316,21 @@ Health check configuration:
 ### 7.1 Enable Auto-Deploy
 
 In App Runner console:
+
 ```yaml
 Automatic deployments: Enabled
 Branch: main
 ```
 
 **Every push to main branch will:**
+
 1. Trigger automatic build
 2. Deploy new version
 3. Perform health checks
 4. Route traffic to new version
 
 ### 7.2 Deployment Commands (CLI Alternative)
+
 ```bash
 # Create API Gateway service via CLI
 aws apprunner create-service \
@@ -342,6 +365,7 @@ aws apprunner create-service \
 ## 💰 Cost Estimation
 
 **App Runner Pricing:**
+
 - **0.25 vCPU, 0.5 GB RAM**: ~$7/month per service
 - **2 services (API + Frontend)**: ~$14/month
 - **Data transfer**: Usually minimal for development
@@ -355,6 +379,7 @@ aws apprunner create-service \
 ### Common Issues
 
 #### 1. Build Failures
+
 ```bash
 # Check build logs in App Runner console
 # Common fix: Update Dockerfile base image
@@ -362,30 +387,34 @@ FROM node:18-alpine  # Use specific version
 ```
 
 #### 2. Health Check Failures
+
 ```bash
 # Ensure health endpoint returns 200 status
 # Check if port matches in configuration
 ```
 
 #### 3. CORS Issues
+
 ```javascript
 // Update CORS configuration in your API
 const corsOptions = {
   origin: [
-    'https://crm-frontend-xxxxxxxxx.us-east-1.awsapprunner.com',
-    'https://app.yourcrm.com'  // if using custom domain
+    "https://crm-frontend-xxxxxxxxx.us-east-1.awsapprunner.com",
+    "https://app.yourcrm.com", // if using custom domain
   ],
-  credentials: true
+  credentials: true,
 };
 ```
 
 #### 4. Environment Variables Not Loading
+
 ```bash
 # Check App Runner service configuration
 # Environment variables should be set in service settings
 ```
 
 ### Debug Commands
+
 ```bash
 # View service status
 aws apprunner describe-service --service-arn "arn:aws:apprunner:us-east-1:123456789012:service/crm-api-gateway"
@@ -399,18 +428,21 @@ aws logs tail /aws/apprunner/crm-api-gateway --follow
 ## ✅ Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] Dockerfiles created for each service
 - [ ] Health check endpoints implemented
 - [ ] Environment variables configured
 - [ ] CORS settings updated for production URLs
 
 ### Deployment
+
 - [ ] API Gateway service deployed and healthy
 - [ ] Frontend service deployed and healthy
 - [ ] Services can communicate with each other
 - [ ] Database connection working
 
 ### Post-Deployment
+
 - [ ] Custom domains configured (optional)
 - [ ] SSL certificates working
 - [ ] Monitoring and alerts set up
@@ -428,6 +460,7 @@ aws logs tail /aws/apprunner/crm-api-gateway --follow
 ✅ **Much simpler than ECS** but still enterprise-grade
 
 **Portfolio Impact:**
+
 - Shows you can deploy complex full-stack applications
 - Demonstrates understanding of cloud services
 - Proves you can set up production infrastructure

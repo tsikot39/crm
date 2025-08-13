@@ -3,6 +3,7 @@
 ## Step-by-Step Deployment Guide
 
 ### 1. Prerequisites Check
+
 - [ ] AWS CLI installed and configured
 - [ ] GitHub repository pushed with latest changes
 - [ ] MongoDB Atlas database ready
@@ -11,6 +12,7 @@
 ### 2. Environment Variables Setup
 
 **For API Gateway Service:**
+
 ```bash
 NODE_ENV=production
 PORT=3001
@@ -28,6 +30,7 @@ ALLOWED_ORIGINS=https://your-frontend.us-east-1.awsapprunner.com,https://localho
 ```
 
 **For Frontend Service:**
+
 ```bash
 NODE_ENV=production
 VITE_API_URL=https://your-api-gateway.us-east-1.awsapprunner.com
@@ -119,15 +122,17 @@ aws apprunner create-service \
 ### 4. Post-Deployment Setup
 
 **Update Frontend Environment:**
+
 1. Get your API Gateway URL from App Runner console
 2. Update frontend service environment variable `VITE_API_URL`
 3. Trigger redeployment of frontend service
 
 **Update CORS Settings:**
+
 1. Get your frontend URL from App Runner console
 2. Update API Gateway service environment variables:
    - `CORS_ORIGIN`
-   - `ALLOWED_ORIGINS` 
+   - `ALLOWED_ORIGINS`
    - `GOOGLE_CALLBACK_URL`
 3. Trigger redeployment of API Gateway service
 
@@ -165,7 +170,7 @@ aws apprunner list-services
 - [ ] Set environment variables for API Gateway
 - [ ] Wait for deployment to complete (5-10 minutes)
 - [ ] Note the API Gateway URL
-- [ ] Create Frontend service in App Runner console  
+- [ ] Create Frontend service in App Runner console
 - [ ] Set VITE_API_URL environment variable for frontend
 - [ ] Wait for frontend deployment
 - [ ] Test your live application!
@@ -173,16 +178,19 @@ aws apprunner list-services
 ## 🔧 Troubleshooting
 
 **Build Failures:**
+
 - Check Docker build context in apprunner.yaml
 - Verify all dependencies are in package.json
 - Check build logs in App Runner console
 
 **Health Check Failures:**
+
 - Ensure /health endpoint returns 200 status
 - Verify port 3001 is exposed in Dockerfile
 - Check if service is binding to 0.0.0.0 not localhost
 
 **Environment Variables Issues:**
+
 - Double-check all required variables are set
 - Ensure MongoDB connection string is correct
 - Verify CORS origins match your frontend URL

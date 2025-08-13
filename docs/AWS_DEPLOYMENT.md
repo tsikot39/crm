@@ -29,6 +29,7 @@
 ## 🏗️ Architecture Overview
 
 ### Production AWS Architecture
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                     CloudFront CDN                      │
@@ -44,6 +45,7 @@
 ```
 
 ### AWS Services Used
+
 - **Amazon S3** - Static website hosting for React frontend
 - **CloudFront** - Global CDN for fast content delivery
 - **Elastic Container Service (ECS)** - Container orchestration
@@ -60,6 +62,7 @@
 ## 📋 Prerequisites
 
 ### Required Tools
+
 ```bash
 # AWS CLI v2
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -78,6 +81,7 @@ sudo apt-get update && sudo apt-get install terraform
 ```
 
 ### AWS Account Requirements
+
 - **AWS Account** with administrative access
 - **Domain name** registered (for production)
 - **MongoDB Atlas** account (recommended over self-hosted)
@@ -88,6 +92,7 @@ sudo apt-get update && sudo apt-get install terraform
 ## 🔧 Initial AWS Setup
 
 ### 1. Configure AWS CLI
+
 ```bash
 # Configure AWS credentials
 aws configure
@@ -103,6 +108,7 @@ aws sts get-caller-identity
 ### 2. Create IAM Roles and Policies
 
 #### ECS Task Execution Role
+
 ```bash
 # Create ECS task execution role
 aws iam create-role \
@@ -127,6 +133,7 @@ aws iam attach-role-policy \
 ```
 
 #### Custom ECS Task Role
+
 ```bash
 # Create custom task role for application permissions
 aws iam create-role \
@@ -168,6 +175,7 @@ aws iam create-policy \
 ```
 
 ### 3. Create VPC and Networking
+
 ```bash
 # Create VPC
 aws ec2 create-vpc \
@@ -206,6 +214,7 @@ aws ec2 create-subnet \
 ## 🗄️ Database Setup
 
 ### MongoDB Atlas Configuration (Recommended)
+
 ```bash
 # 1. Create MongoDB Atlas cluster at https://cloud.mongodb.com
 # 2. Configure network access for AWS regions
@@ -221,6 +230,7 @@ aws ssm put-parameter \
 ```
 
 ### Redis Cache Setup
+
 ```bash
 # Create ElastiCache subnet group
 aws elasticache create-cache-subnet-group \
@@ -245,6 +255,7 @@ aws elasticache create-cache-cluster \
 ### 1. Create Dockerfiles for Each Service
 
 #### API Gateway Dockerfile
+
 ```dockerfile
 # services/api-gateway/Dockerfile
 FROM node:18-alpine AS builder
@@ -278,6 +289,7 @@ CMD ["node", "src/index.js"]
 ```
 
 #### Frontend Dockerfile
+
 ```dockerfile
 # apps/frontend/Dockerfile
 FROM node:18-alpine AS builder
@@ -305,6 +317,7 @@ EXPOSE 80
 ```
 
 ### 2. Build and Push to ECR
+
 ```bash
 # Create ECR repositories
 aws ecr create-repository --repository-name crm/api-gateway
@@ -328,6 +341,7 @@ docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/crm/api-gateway:latest
 ## 🚀 Frontend Deployment
 
 ### 1. S3 Bucket Setup
+
 ```bash
 # Create S3 bucket for frontend hosting
 aws s3 mb s3://your-crm-frontend-bucket --region us-east-1
@@ -355,6 +369,7 @@ aws s3api put-bucket-policy \
 ```
 
 ### 2. CloudFront Distribution
+
 ```bash
 # Create CloudFront distribution
 aws cloudfront create-distribution \
@@ -396,6 +411,7 @@ aws cloudfront create-distribution \
 ```
 
 ### 3. Deploy Frontend
+
 ```bash
 # Build frontend
 cd apps/frontend
@@ -415,6 +431,7 @@ aws cloudfront create-invalidation \
 ## ⚙️ Backend Services Deployment
 
 ### 1. Create ECS Cluster
+
 ```bash
 # Create ECS cluster
 aws ecs create-cluster \
@@ -426,6 +443,7 @@ aws ecs create-cluster \
 ### 2. Create Task Definitions
 
 #### API Gateway Task Definition
+
 ```json
 {
   "family": "crm-api-gateway",
@@ -490,6 +508,7 @@ aws ecs create-cluster \
 ```
 
 ### 3. Create ECS Services
+
 ```bash
 # Register task definition
 aws ecs register-task-definition \
@@ -536,6 +555,7 @@ aws ecs create-service \
 ## 🌐 Load Balancer & DNS
 
 ### 1. Create Application Load Balancer
+
 ```bash
 # Create ALB
 aws elbv2 create-load-balancer \
@@ -565,6 +585,7 @@ aws elbv2 create-listener \
 ```
 
 ### 2. SSL Certificate and HTTPS
+
 ```bash
 # Request SSL certificate
 aws acm request-certificate \
@@ -582,6 +603,7 @@ aws elbv2 create-listener \
 ```
 
 ### 3. Route 53 DNS Configuration
+
 ```bash
 # Create hosted zone
 aws route53 create-hosted-zone \
@@ -614,6 +636,7 @@ aws route53 change-resource-record-sets \
 ## 📊 Monitoring & Logging
 
 ### 1. CloudWatch Log Groups
+
 ```bash
 # Create log groups for each service
 aws logs create-log-group --log-group-name /ecs/crm-api-gateway
@@ -627,6 +650,7 @@ aws logs put-retention-policy \
 ```
 
 ### 2. CloudWatch Alarms
+
 ```bash
 # CPU utilization alarm
 aws cloudwatch put-metric-alarm \
@@ -658,6 +682,7 @@ aws cloudwatch put-metric-alarm \
 ```
 
 ### 3. Application Performance Monitoring
+
 ```bash
 # Install AWS X-Ray SDK in your applications
 npm install aws-xray-sdk-core
@@ -676,6 +701,7 @@ npm install aws-xray-sdk-core
 ## 🔐 Security Configuration
 
 ### 1. WAF (Web Application Firewall)
+
 ```bash
 # Create WAF web ACL
 aws wafv2 create-web-acl \
@@ -706,6 +732,7 @@ aws wafv2 create-web-acl \
 ```
 
 ### 2. Security Groups Configuration
+
 ```bash
 # Create security group for ALB
 aws ec2 create-security-group \
@@ -728,6 +755,7 @@ aws ec2 authorize-security-group-ingress \
 ```
 
 ### 3. Secrets Management
+
 ```bash
 # Store application secrets in Parameter Store
 aws ssm put-parameter \
@@ -746,6 +774,7 @@ aws ssm put-parameter \
 ## 🔄 CI/CD Pipeline
 
 ### 1. GitHub Actions Workflow
+
 ```yaml
 # .github/workflows/deploy-aws.yml
 name: Deploy to AWS
@@ -770,8 +799,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
       - run: npm ci
       - run: npm run test
       - run: npm run lint
@@ -781,7 +810,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -816,6 +845,7 @@ jobs:
 ```
 
 ### 2. Blue-Green Deployment Strategy
+
 ```bash
 # Create blue-green deployment script
 #!/bin/bash
@@ -845,6 +875,7 @@ echo "Blue-green deployment completed successfully"
 ## 📈 Auto Scaling
 
 ### 1. ECS Service Auto Scaling
+
 ```bash
 # Register scalable target
 aws application-autoscaling register-scalable-target \
@@ -872,6 +903,7 @@ aws application-autoscaling put-scaling-policy \
 ```
 
 ### 2. ALB Auto Scaling
+
 ```bash
 # Create CloudWatch alarm for ALB
 aws cloudwatch put-metric-alarm \
@@ -892,6 +924,7 @@ aws cloudwatch put-metric-alarm \
 ## 💰 Cost Optimization
 
 ### 1. Resource Right-Sizing
+
 ```bash
 # Use Fargate Spot for non-critical workloads
 aws ecs create-capacity-provider \
@@ -910,13 +943,14 @@ aws ecs modify-cluster \
       "weight": 1
     },
     {
-      "capacityProvider": "FARGATE_SPOT", 
+      "capacityProvider": "FARGATE_SPOT",
       "weight": 3
     }
   ]'
 ```
 
 ### 2. CloudFront Cost Optimization
+
 ```bash
 # Use appropriate price class for CloudFront
 aws cloudfront update-distribution \
@@ -929,6 +963,7 @@ aws cloudfront update-distribution \
 ```
 
 ### 3. S3 Intelligent Tiering
+
 ```bash
 # Enable S3 Intelligent Tiering
 aws s3api put-bucket-intelligent-tiering-configuration \
@@ -956,6 +991,7 @@ aws s3api put-bucket-intelligent-tiering-configuration \
 ## 🚀 Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] AWS account setup with proper permissions
 - [ ] Domain name registered and DNS configured
 - [ ] SSL certificates requested and validated
@@ -964,6 +1000,7 @@ aws s3api put-bucket-intelligent-tiering-configuration \
 - [ ] All Docker images built and pushed to ECR
 
 ### Production Deployment
+
 - [ ] VPC and networking configured
 - [ ] ECS cluster created
 - [ ] Task definitions registered
@@ -974,6 +1011,7 @@ aws s3api put-bucket-intelligent-tiering-configuration \
 - [ ] Frontend deployed to S3 and cached
 
 ### Post-Deployment
+
 - [ ] Health checks passing
 - [ ] Monitoring and alerting configured
 - [ ] Auto-scaling policies tested
@@ -988,6 +1026,7 @@ aws s3api put-bucket-intelligent-tiering-configuration \
 ### Common Issues
 
 #### ECS Service Won't Start
+
 ```bash
 # Check ECS service events
 aws ecs describe-services --cluster crm-cluster --services crm-api-gateway
@@ -997,6 +1036,7 @@ aws logs tail /ecs/crm-api-gateway --follow
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Test MongoDB connection from ECS task
 aws ecs execute-command \
@@ -1007,6 +1047,7 @@ aws ecs execute-command \
 ```
 
 #### Load Balancer Health Checks Failing
+
 ```bash
 # Check target group health
 aws elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/crm-api-tg/50dc6c495c0c9188
@@ -1016,6 +1057,7 @@ curl -f http://your-alb-url/health
 ```
 
 ### Monitoring Commands
+
 ```bash
 # View ECS service metrics
 aws cloudwatch get-metric-statistics \
