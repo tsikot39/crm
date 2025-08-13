@@ -4,7 +4,8 @@ build:
   commands:
     build:
       - cd /codebuild/output/src*/services/api-gateway
-      - npm ci
+      - rm -f package-lock.json
+      - npm install --legacy-peer-deps
       - npm run build
 run:
   command: node dist/index.js
