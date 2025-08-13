@@ -6,7 +6,6 @@ build:
       - echo "Building API Gateway service from root context"
       - docker build -f services/api-gateway/Dockerfile -t api-gateway .
 run:
-  runtime-version: "20"
   command: node dist/index.js
   network:
     port: 3001

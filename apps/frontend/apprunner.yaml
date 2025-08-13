@@ -6,7 +6,6 @@ build:
       - echo "Building Frontend service from root context"
       - docker build -f apps/frontend/Dockerfile -t frontend .
 run:
-  runtime-version: "20"
   command: nginx -g "daemon off;"
   network:
     port: 80
