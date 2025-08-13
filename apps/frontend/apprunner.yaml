@@ -1,0 +1,17 @@
+version: 1.0
+runtime: docker
+build:
+  commands:
+    build:
+      - echo "Building Frontend service from root context"
+      - ls -la
+      - docker build -f apps/frontend/Dockerfile -t frontend .
+run:
+  runtime-version: latest
+  command: nginx -g "daemon off;"
+  network:
+    port: 80
+    env: PORT
+  env:
+    - name: NODE_ENV
+      value: production
