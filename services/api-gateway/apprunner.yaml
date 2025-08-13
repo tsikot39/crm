@@ -1,10 +1,11 @@
 version: 1.0
-runtime: docker
+runtime: nodejs18
 build:
   commands:
     build:
-      - echo "Building API Gateway service from root context"
-      - docker build -f services/api-gateway/Dockerfile -t api-gateway .
+      - cd /codebuild/output/src*/services/api-gateway
+      - npm ci
+      - npm run build
 run:
   command: node dist/index.js
   network:
