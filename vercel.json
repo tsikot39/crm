@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "name": "crm-saas-platform",
+  "builds": [
+    {
+      "src": "apps/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/frontend/dist/$1"
+    }
+  ],
+  "functions": {
+    "api/auth/login.js": {
+      "maxDuration": 10
+    },
+    "api/contacts.js": {
+      "maxDuration": 10
+    },
+    "api/companies.js": {
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "installCommand": "npm ci --include=dev",
+  "buildCommand": "npm run build",
+  "outputDirectory": "apps/frontend/dist"
+}
