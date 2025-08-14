@@ -15,3 +15,15 @@ run:
       value: production
     - name: PORT
       value: "3001"
+    - name: DATABASE_URL
+      value: mongodb+srv://tsikot39:n4w5rb@cluster0.3f8yqnc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    - name: DATABASE_NAME
+      value: crm_saas_platform
+    - name: JWT_SECRET
+      value: 665850abdaf1d233e40b77f5050d7ea4b7125834e097ccd90caa596385c7d9169f546082978ee462388823913ae1fc9ffb7b976a57dd3df0ea0c9f9403f38875
+    - name: JWT_EXPIRES_IN
+      value: 7d
+    - name: CORS_ORIGIN
+      value: "*"
+    - name: ALLOWED_ORIGINS
+      value: "*"
