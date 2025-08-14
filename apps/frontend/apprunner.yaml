@@ -1,15 +1,19 @@
 version: 1.0
-runtime: docker
+runtime: nodejs18
 build:
   commands:
     build:
-      - echo "Building Frontend service from root context"
-      - docker build -f apps/frontend/Dockerfile -t frontend .
+      - npm install --legacy-peer-deps --engine-strict=false
+      - npm run build
 run:
-  command: nginx -g "daemon off;"
+  command: npx serve -s dist -l 3000
   network:
-    port: 80
+    port: 3000
     env: PORT
   env:
     - name: NODE_ENV
       value: production
+    - name: PORT
+      value: "3000"
+    - name: VITE_API_URL
+      value: https://f37ddu4y24.us-west-2.awsapprunner.com
