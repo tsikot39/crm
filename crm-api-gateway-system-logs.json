@@ -1,0 +1,11 @@
+[
+  "[AppRunner] Deployment with ID : 6a2980eb0c8547939d501376e038782e started. Triggering event : SERVICE_CREATE",
+  "[AppRunner] Deployment Artifact: [Repo Type: Source], [Repository: https://github.com/tsikot39/crm], [Branch: main], [SourceDirectory: services/api-gateway]",
+  "[AppRunner] Creating pipeline for automatic deployments.",
+  "[AppRunner] Successfully created pipeline for automatic deployments.",
+  "[AppRunner] Pulling source code from GITHUB Repository ( https://github.com/tsikot39/crm ).",
+  "[AppRunner] Successfully pulled your application source code.",
+  "[AppRunner] Reading apprunner.yaml config file.",
+  "[AppRunner] Failed to build your application source code. Reason: The specified runtime version is not supported. Refer to the Release information in the App Runner Developer guide for supported runtime versions.",
+  "[AppRunner] Deployment with ID : 6a2980eb0c8547939d501376e038782e failed."
+]
