@@ -3,6 +3,7 @@ runtime: nodejs18
 build:
   commands:
     build:
+      - export VITE_API_URL=https://f37ddu4y24.us-west-2.awsapprunner.com
       - npm install --legacy-peer-deps --engine-strict=false
       - npm run build
 run:
