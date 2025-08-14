@@ -124,7 +124,15 @@ router.post(
       ContactDocument,
       "_id" | "createdAt" | "updatedAt"
     > = {
-      ...validatedData,
+      firstName: validatedData.firstName,
+      lastName: validatedData.lastName,
+      email: validatedData.email,
+      phone: validatedData.phone,
+      jobTitle: validatedData.jobTitle,
+      companyId: validatedData.companyId,
+      tags: validatedData.tags || [],
+      notes: validatedData.notes,
+      status: validatedData.status || "lead",
       organizationId: req.user.organizationId,
       assignedTo: req.user.id,
     };
