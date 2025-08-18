@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Play, Star } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 
 export const HeroSection: React.FC = () => {
   return (
@@ -42,13 +42,9 @@ export const HeroSection: React.FC = () => {
                 to="/signup"
                 className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-primary-600 hover:to-primary-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
               >
-                <span>Get Started Free</span>
+                <span>Start Your Free Trial</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button className="border-2 border-neutral-300 text-neutral-700 px-8 py-4 rounded-lg text-lg font-semibold hover:border-primary-500 hover:text-primary-600 transition-all duration-200 flex items-center justify-center space-x-2 group">
-                <Play className="w-5 h-5 group-hover:text-primary-600" />
-                <span>Watch Demo</span>
-              </button>
             </div>
 
             {/* Social Proof */}

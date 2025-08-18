@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   Users,
   Building2,
@@ -127,12 +128,12 @@ export const FeaturesSection: React.FC = () => {
               revenue with our CRM platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+              <Link 
+                to="/signup"
+                className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-primary-600 hover:to-primary-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
                 Start Free Trial
-              </button>
-              <button className="border-2 border-primary-300 text-primary-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-50 transition-all duration-200">
-                Schedule Demo
-              </button>
+              </Link>
             </div>
           </div>
         </div>

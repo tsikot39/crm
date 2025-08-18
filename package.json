@@ -10,7 +10,7 @@
     "shared/*"
   ],
   "scripts": {
-    "dev": "node dev-server.js",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
     "dev:simple": "cd apps/frontend && npm run dev",
     "dev:frontend": "cd apps/frontend && npm run dev",
     "dev:backend": "cd services/api-gateway && node mock-server.js",
@@ -57,13 +57,13 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
-    "concurrently": "^9.1.0",
+    "concurrently": "^9.2.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.3"
   },
   "optionalDependencies": {
-    "k6": "latest",
-    "artillery": "latest"
+    "artillery": "latest",
+    "k6": "latest"
   },
   "engines": {
     "node": ">=18.0.0",
