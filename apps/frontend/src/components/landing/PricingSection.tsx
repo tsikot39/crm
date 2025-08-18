@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Check, Star, ArrowRight } from "lucide-react";
+import { ContactSalesModal } from "../modals/ContactSalesModal";
 
 const plans = [
   {
@@ -15,7 +17,7 @@ const plans = [
       "5 team members",
     ],
     popular: false,
-    cta: "Start Free Trial",
+    cta: "Get Started",
   },
   {
     name: "Professional",
@@ -55,6 +57,8 @@ const plans = [
 ];
 
 export const PricingSection: React.FC = () => {
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
   return (
     <section
       id="pricing"
@@ -133,16 +137,33 @@ export const PricingSection: React.FC = () => {
                 </div>
 
                 {/* CTA Button */}
-                <button
-                  className={`w-full py-4 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                    plan.popular
-                      ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl"
-                      : "border-2 border-primary-500 text-primary-600 hover:bg-primary-50"
-                  }`}
-                >
-                  <span>{plan.cta}</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                {(() => {
+                  if (plan.name === "Enterprise") {
+                    return (
+                      <button
+                        onClick={() => setIsContactModalOpen(true)}
+                        className="w-full py-4 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 border-2 border-primary-500 text-primary-600 hover:bg-primary-50"
+                      >
+                        <span>{plan.cta}</span>
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
+                    );
+                  }
+                  
+                  return (
+                    <Link
+                      to="/signup"
+                      className={`w-full py-4 px-6 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
+                        plan.popular
+                          ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl"
+                          : "border-2 border-primary-500 text-primary-600 hover:bg-primary-50"
+                      }`}
+                    >
+                      <span>{plan.cta}</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  );
+                })()}
               </div>
             </div>
           ))}
@@ -195,6 +216,12 @@ export const PricingSection: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Contact Sales Modal */}
+      <ContactSalesModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </section>
   );
 };

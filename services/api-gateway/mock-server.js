@@ -1063,6 +1063,107 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Contact Sales endpoint
+  if (pathname === "/api/contact-sales" && req.method === "POST") {
+    getRequestBody().then(async (data) => {
+      try {
+        const { fullName, email, companyName, companySize, phone, message } = data;
+        
+        // Basic validation
+        if (!fullName || !email || !companyName || !companySize) {
+          return sendJSON({
+            success: false,
+            message: "Missing required fields"
+          }, 400);
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          return sendJSON({
+            success: false,
+            message: "Invalid email address"
+          }, 400);
+        }
+
+        // Use nodemailer with Resend SMTP
+        const nodemailer = require("nodemailer");
+
+        // Resend SMTP configuration (much better than Gmail for transactional emails)
+        const transporterConfig = {
+          host: process.env.SMTP_HOST || 'smtp.resend.com',
+          port: parseInt(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_SECURE === 'true' || false,
+          auth: {
+            user: process.env.SMTP_USER || 'resend',
+            pass: process.env.SMTP_PASS || 're_ctqT9sYN_GEXRr75BZY9qoKwdmtA5M7Hg'
+          }
+        };
+
+        const transporter = nodemailer.createTransporter(transporterConfig);
+
+        // Email content
+        const mailOptions = {
+          from: `${process.env.EMAIL_FROM_NAME || 'CRM Platform'} <${process.env.EMAIL_FROM_ADDRESS || 'onboarding@resend.dev'}>`,
+          to: process.env.SALES_EMAIL || 'corpusjohnbenedict@gmail.com',
+          subject: `New Enterprise Sales Inquiry from ${companyName}`,
+          html: `
+            <h2>New Enterprise Sales Lead</h2>
+            <p><strong>Contact Information:</strong></p>
+            <ul>
+              <li><strong>Name:</strong> ${fullName}</li>
+              <li><strong>Email:</strong> ${email}</li>
+              <li><strong>Company:</strong> ${companyName}</li>
+              <li><strong>Company Size:</strong> ${companySize}</li>
+              ${phone ? `<li><strong>Phone:</strong> ${phone}</li>` : ''}
+            </ul>
+            
+            ${message ? `
+              <p><strong>Requirements/Message:</strong></p>
+              <p>${message.replace(/\n/g, '<br>')}</p>
+            ` : ''}
+            
+            <hr>
+            <p><small>This inquiry was submitted through your CRM SaaS pricing page on ${new Date().toLocaleString()}.</small></p>
+          `,
+        };
+
+        // Send email
+        await transporter.sendMail(mailOptions);
+        
+        console.log(`📧 Contact sales email sent for ${companyName} (${email})`);
+
+        // Optionally store in database
+        if (db) {
+          await db.collection("sales_inquiries").insertOne({
+            fullName,
+            email,
+            companyName,
+            companySize,
+            phone: phone || null,
+            message: message || null,
+            createdAt: new Date(),
+            status: "new"
+          });
+          console.log(`💾 Sales inquiry stored in database`);
+        }
+
+        sendJSON({
+          success: true,
+          message: "Your inquiry has been submitted successfully. Our sales team will contact you within 24 hours."
+        });
+
+      } catch (error) {
+        console.error("❌ Contact sales error:", error);
+        sendJSON({
+          success: false,
+          message: "Failed to submit your inquiry. Please try again later."
+        }, 500);
+      }
+    });
+    return;
+  }
+
   // Verify token endpoint
   if (pathname === "/api/auth/verify" && req.method === "GET") {
     const authToken = req.headers.authorization?.replace("Bearer ", "");
@@ -4011,6 +4112,7 @@ server.listen(PORT, async () => {
   console.log(`   PUT  /api/deals/:id - Update deal (requires auth)`);
   console.log(`   DELETE /api/deals/:id - Delete deal (requires auth)`);
   console.log(`   GET  /api/health - Health check with database stats`);
+  console.log(`   POST /api/contact-sales - Submit enterprise sales inquiry`);
   console.log(
     `\n💡 This server uses MongoDB for data persistence - no localStorage!`
   );
