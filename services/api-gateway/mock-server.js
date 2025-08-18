@@ -1100,7 +1100,7 @@ const server = http.createServer((req, res) => {
           }
         };
 
-        const transporter = nodemailer.createTransporter(transporterConfig);
+        const transporter = nodemailer.createTransport(transporterConfig);
 
         // Email content
         const mailOptions = {

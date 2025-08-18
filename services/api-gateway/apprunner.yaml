@@ -27,3 +27,19 @@ run:
       value: "*"
     - name: ALLOWED_ORIGINS
       value: "*"
+    - name: SMTP_HOST
+      value: smtp.resend.com
+    - name: SMTP_PORT
+      value: "587"
+    - name: SMTP_SECURE
+      value: "false"
+    - name: SMTP_USER
+      value: resend
+    - name: SMTP_PASS
+      value: re_ctqT9sYN_GEXRr75BZY9qoKwdmtA5M7Hg
+    - name: EMAIL_FROM_NAME
+      value: CRM Platform
+    - name: EMAIL_FROM_ADDRESS
+      value: onboarding@resend.dev
+    - name: SALES_EMAIL
+      value: corpusjohnbenedict@gmail.com
