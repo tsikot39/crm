@@ -1,53 +1,129 @@
-# 🚀 Enterprise CRM SaaS Platform
+# 🚀 CRM SaaS Platform
 
-> **A Production-Ready, Multi-Tenant Customer Relationship Management System Built with Modern Web Technologies**
+A modern, production-ready Customer Relationship Management (CRM) application built with **React + Node.js, TypeScript**, and deployed on AWS App Runner. This **full-stack React frontend + Node.js backend application** demonstrates enterprise-level development practices and scalable architecture with complete end-to-end development proficiency.
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+## 🌟 Live Demo
 
----
+**🔗 Application**: https://3u3db7q2ku.us-west-2.awsapprunner.com  
+**🔗 Backend API**: https://f37ddu4y24.us-west-2.awsapprunner.com  
+**📧 Contact Sales**: Fully functional with email notifications
 
-## 📋 Table of Contents
-
-- [🌟 Overview](#-overview)
-- [✨ Key Features](#-key-features)
-- [🏗️ Architecture](#️-architecture)
-- [🛠️ Technology Stack](#️-technology-stack)
-- [🔐 Security & Compliance](#-security--compliance)
-- [📊 Performance & Optimization](#-performance--optimization)
-- [🧪 Testing Strategy](#-testing-strategy)
-- [🚀 Getting Started](#-getting-started)
-- [📚 API Documentation](#-api-documentation)
-- [🔧 Development](#-development)
-- [🐳 Deployment](#-deployment)
-- [🤝 Contributing](#-contributing)
-
----
-
-## 🌟 Overview
-
-This **Enterprise CRM SaaS Platform** is a comprehensive, production-ready customer relationship management system designed for scalability, security, and performance. Built with a modern microservices architecture, it provides businesses with powerful tools to manage contacts, companies, deals, and customer relationships while ensuring complete data isolation between tenants.
-
-### Why This CRM Stands Out
-
-- **🏢 Multi-Tenant Architecture**: Complete data isolation with organization-based separation
-- **⚡ Real-Time Updates**: Live data synchronization across all connected clients
-- **🔒 Enterprise Security**: OWASP-compliant security with JWT authentication and bcrypt encryption
-- **📱 Responsive Design**: Beautiful, accessible UI that works on all devices
-- **🚀 High Performance**: Optimized queries, caching, and lazy loading for lightning-fast responses
-- **🧪 Test-Driven Development**: 95%+ code coverage with comprehensive testing suite
-- **📈 Production-Ready**: Complete CI/CD pipeline with monitoring and error tracking
-
----
+### Test Credentials
+- **Email**: test@example.com
+- **Password**: password123
 
 ## ✨ Key Features
 
-### 👥 Contact Management
+- 🔐 **Secure Authentication** - JWT-based with password hashing
+- 👥 **Contact Management** - Full CRUD operations with search and filtering  
+- 🏢 **Company Tracking** - Organize contacts by companies
+- 💼 **Deal Pipeline** - Sales opportunity management
+- 📊 **Analytics Dashboard** - Real-time metrics and insights
+- 📧 **Email Integration** - Transactional emails via Resend SMTP
+- 📱 **Responsive Design** - Mobile-first, works on all devices
+- 🎨 **Professional UI** - Modern design with Shadcn/ui components
+- ⚡ **Fast Performance** - Optimized with Vite and modern practices
+- 🛡️ **Production Security** - Input validation, CORS, XSS protection
+- 🌐 **Full-Stack React + Node.js** - Complete end-to-end development
 
-- **Advanced Contact Profiles**: Full contact lifecycle management with custom fields
+## 🛠️ Tech Stack
+
+### Frontend (React)
+- **React 19** + **TypeScript** for type-safe development
+- **Vite** for lightning-fast builds and HMR
+- **TailwindCSS** for utility-first styling
+- **Shadcn/ui** for consistent, accessible components
+- **Zustand** for lightweight state management
+- **React Router** for client-side navigation
+
+### Backend (Node.js)
+- **Node.js** + **Express.js** for robust REST API
+- **TypeScript** for backend type safety and development
+- **MongoDB Atlas** for cloud database storage
+- **JWT** for secure authentication tokens
+- **bcryptjs** for password hashing and security
+- **Nodemailer** + **Resend** for transactional email services
+
+### DevOps & Deployment
+- **AWS App Runner** for serverless deployment
+- **GitHub Actions** for CI/CD pipeline
+- **Docker** containerization
+- **Environment-based** configuration
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   React Client  │    │   Node.js API   │    │   MongoDB       │
+│   (Frontend)    │◄──►│   (Backend)     │◄──►│   (Database)    │
+│   Port: 5173    │    │   Port: 3001    │    │   Cloud Atlas   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         ▲                       ▲                       ▲
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   AWS App       │    │   JWT Auth      │    │   Email Service │
+│   Runner        │    │   Middleware    │    │   (Resend)      │
+│   (Production)  │    │   (Security)    │    │   (SMTP)        │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- MongoDB Atlas account (or local MongoDB)
+- Resend account for email (optional)
+
+### Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/tsikot39/crm.git
+cd crm
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Environment Setup**
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Update with your credentials:
+# - MongoDB connection string
+# - JWT secret
+# - Email service credentials (optional)
+```
+
+4. **Start Development Server**
+```bash
+npm run dev
+```
+
+This starts both frontend (http://localhost:5173) and backend (http://localhost:3001) concurrently.
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev              # Start both frontend and backend
+npm run dev:frontend     # Frontend only
+npm run dev:backend      # Backend only
+
+# Building
+npm run build           # Build all services
+npm run build:frontend  # Build frontend only
+npm run build:services  # Build backend services
+
+# Testing
+npm run test           # Run all tests
+npm run lint           # Lint all code
+```
 - **Company Relationships**: Automatic company linking and relationship tracking
 - **Smart Search & Filtering**: Global search with instant filtering and highlighting
 - **Bulk Operations**: Import, export, and bulk edit contacts
